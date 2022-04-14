@@ -35,6 +35,7 @@ from Components.SystemInfo import SystemInfo
 from .server import KodiExtRequestHandler, UDSServer
 from Tools.BoundFunction import boundFunction
 from boxbranding import getMachineBrand
+from Tools.Directories import isPluginInstalled
 
 from six.moves.queue import Queue
 
@@ -243,7 +244,7 @@ def kodiResumeStopped(data, retval, extraArgs):
         KODI_LAUNCHER.stop()
 #        <eLabel name="" position="1400,1020" size="445,45" text=" " font="RegularHD; 20"  backgroundColor="#001E1C1C"/>
 
-class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSupport, InfoBarSeek, InfoBarSubservicesSupport, InfoBarAspectChange, InfoBarAudioSelection, InfoBarNotifications, HelpableScreen, Screen):
+class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSupport, InfoBarSeek, InfoBarSubservicesSupport, InfoBarSubtitleSupport, InfoBarAspectChange, InfoBarAudioSelection, InfoBarNotifications, HelpableScreen, Screen):
     if esHD():
         skin = """
         <screen title="custom service source" position="0, 0" size="1921,1081" zPosition="1" flags="wfNoBorder" backgroundColor="transparent">
@@ -380,6 +381,9 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         InfoBarSeek.__init__(self)
         InfoBarShowHide.__init__(self)
         InfoBarSubservicesSupport.__init__(self)
+
+        if not isPluginInstalled("SubsSupport"):
+            InfoBarSubtitleSupport.__init__(self)
         InfoBarAspectChange.__init__(self)
         InfoBarAudioSelection.__init__(self)
         InfoBarNotifications.__init__(self)
@@ -436,6 +440,12 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         self["okCancelActions"] = HelpableActionMap(self, "OkCancelActions",
         {
             "cancel": self.close
+        })
+
+        self["ColorActions"] = HelpableActionMap(self, "ColorActions",
+        {
+            "blue": self.subtitleSelection,
+#            "yellow": self.audioSelection
         })
 
         self["actions"] = HelpableActionMap(self, "KodiPlayerActions",
@@ -520,9 +530,6 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
     def audioSelection(self):
         self.session.openWithCallback(self.audioSelected, MyAudioSelection, infobar=self)
 
-    def subtitleSelection(self):
-        from Screens.AudioSelection import SubtitleSelection
-        self.session.open(SubtitleSelection, self)
 
     def showAspectChanged(self):
         self.statusScreen.setStatus(self.getAspectStr(), "#00ff00")
