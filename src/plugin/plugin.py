@@ -886,13 +886,15 @@ class E2KodiExtServer(UDSServer):
 
     def kodiPlayerExitCB(self, callback=None):
         setaudio.switch(True, True)
-        if getMachineBrand() not in ('Vu+', 'Formuler'):
-            setresolution.switch(True, True)
-        self.endTimer.start(500, True)
+#        if getMachineBrand() not in ('Vu+', 'Formuler'):
+#            setresolution.switch(True, True)
+        self.endTimer.start(600, True)
 
     def end(self):
         self.endTimer.stop()
         SESSION.nav.stopService()
+        if getMachineBrand() not in ('Vu+', 'Formuler'):
+            setresolution.switch(True, True)
         self.kodiPlayer = None
         self.subtitles = []
 
@@ -915,7 +917,9 @@ class KodiLauncher(Screen):
         self.startupTimer.start(500, True)
         self.endTimer = eTimer()
         self.endTimer.timeout.get().append(self.end)
-        self.onClose.append(RCUnlock)
+        self.endTimer1 = eTimer()
+        self.endTimer1.timeout.get().append(self.end1)
+#        self.onClose.append(RCUnlock)
 
     def startup(self):
         def psCallback(data, retval, extraArgs):
@@ -954,10 +958,15 @@ class KodiLauncher(Screen):
 
     def stop(self):
         FBUnlock()
+        RCUnlock()
         setaudio.switch()
+        self.endTimer1.start(600, True)
+        
+    def end1(self):
+        self.endTimer1.stop()
         setresolution.switch()
         self.endTimer.start(600, True)
-        
+
     def end(self):
         self.endTimer.stop()
         if self.previousService:
