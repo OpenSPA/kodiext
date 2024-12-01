@@ -270,6 +270,10 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
             <widget source="global.CurrentTime" render="Label" position="1700,34" size="150,67" font="RegularHD; 32" backgroundColor="#10000000" transparent="1" zPosition="3" halign="center">
               <convert type="ClockToText">Default</convert>
             </widget>
+            <widget name="endsat" position="1447,85" size="300,37" zPosition="6" font="RegularHD;22" halign="right"/>
+            <widget source="session.CurrentService" render="Label" position="1751,85" size="150,37" zPosition="6" font="RegularHD;22" halign="left" transparent="1">
+                <convert type="ServicePosition">EndTime,ShowNoSeconds</convert>
+            </widget>
             <eLabel name="" position="0,0" size="1924,140" zPosition="-10"/>
             <eLabel position="0,856" zPosition="-11" size="1921,224" />
             <widget name="image" position="30,780" size="300,300" alphatest="on" transparent="1"/>
@@ -330,6 +334,10 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         <screen title="custom service source" position="0, 0" size="1280,720" zPosition="1" flags="wfNoBorder" backgroundColor="transparent">
             <widget source="global.CurrentTime" render="Label" position="1133,22" size="100,44" font="Regular; 32" backgroundColor="#10000000" transparent="1" zPosition="3" halign="center">
               <convert type="ClockToText">Default</convert>
+            </widget>
+            <widget name="endsat" position="964,56" size="200,24" zPosition="6" font="Regular;22" halign="right"/>
+            <widget source="session.CurrentService" render="Label" position="1167,56" size="100,24" zPosition="6" font="Regular;22" halign="left" transparent="1">
+                <convert type="ServicePosition">EndTime,ShowNoSeconds</convert>
             </widget>
             <eLabel name="" position="0,0" size="1282,93" zPosition="-10"/>
             <eLabel position="0,570" zPosition="-11" size="1280,149" />
@@ -421,6 +429,7 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         self.__position = None
         self.__firstStart = True
         self["genre"] = Label()
+        self["endsat"]= Label(_("Ends at"))
 
         # load meta info from json file provided by Kodi Enigma2Player
         try:
@@ -800,7 +809,7 @@ class E2KodiExtServer(UDSServer):
         self.messageIn.put((True, None))
         self.stopTimer = eTimer()
         self.stopTimer.callback.append(KODI_LAUNCHER.stop)
-        self.stopTimer.start(500, True)
+        self.stopTimer.start(1000, True)
 
     def handleSwitchToKodiMessage(self, status, data):
         self.messageIn.put((True, None))
@@ -817,7 +826,7 @@ class E2KodiExtServer(UDSServer):
             setresolution.switch(False, True)
         self.status = status
         self.data = data
-        self.startTimer.start(600, True)
+        self.startTimer.start(1000, True)
 
     def player(self):
         self.startTimer.stop()
@@ -914,7 +923,7 @@ class KodiLauncher(Screen):
         self.session.nav.stopService()
         self.startupTimer = eTimer()
         self.startupTimer.timeout.get().append(self.startup)
-        self.startupTimer.start(500, True)
+        self.startupTimer.start(1000, True)
         self.endTimer = eTimer()
         self.endTimer.timeout.get().append(self.end)
         self.endTimer1 = eTimer()
@@ -960,12 +969,12 @@ class KodiLauncher(Screen):
         FBUnlock()
         RCUnlock()
         setaudio.switch()
-        self.endTimer1.start(600, True)
+        self.endTimer1.start(1000, True)
         
     def end1(self):
         self.endTimer1.stop()
         setresolution.switch()
-        self.endTimer.start(600, True)
+        self.endTimer.start(1000, True)
 
     def end(self):
         self.endTimer.stop()
