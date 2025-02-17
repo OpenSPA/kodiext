@@ -23,6 +23,9 @@ from Screens.Screen import Screen
 from Tools.Directories import fileExists
 from Tools import Notifications
 from Screens.Standby import QUIT_KODI, TryQuitMainloop
+from Components.config import config, ConfigSubsection, ConfigYesNo
+from Screens.Setup import Setup
+from Components.Sources.StaticText import StaticText
 
 from Components.config import config
 from Components.AVSwitch import iAVSwitch
