@@ -45,6 +45,10 @@ except:
 from Tools.Directories import isPluginInstalled
 from six.moves.queue import Queue
 
+config.kodi = ConfigSubsection()
+config.kodi.addToMainMenu = ConfigYesNo(False)
+config.kodi.addToExtensionMenu = ConfigYesNo(True)
+config.kodi.standalone = ConfigYesNo(False)
 
 try:
     from Plugins.Extensions.SubsSupport import SubsSupport, SubsSupportStatus
@@ -1036,22 +1040,48 @@ def autoStart(reason, **kwargs):
         SERVER_THREAD.join()
 
 def startLauncher(session, **kwargs):
-    setaudio.ReadData()
-    setresolution.ReadData()
-    RCUnlock()
-    global SESSION
-    SESSION = session
-    global KODI_LAUNCHER
-    KODI_LAUNCHER = session.open(KodiLauncher)
+    if config.kodi.standalone.value:
+        session.open(TryQuitMainloop, retvalue=QUIT_KODI)
+    else:
+        setaudio.ReadData()
+        setresolution.ReadData()
+        RCUnlock()
+        global SESSION
+        SESSION = session
+        global KODI_LAUNCHER
+        KODI_LAUNCHER = session.open(KodiLauncher)
+
+def startMenuLauncher(menuid, **kwargs):
+    if menuid == "mainmenu":
+        return [("Kodi", startLauncher, "kodi", 1)]
+    return []
+
+class KodiExtSetup(Setup):
+    def __init__(self, session):
+        Setup.__init__(self, session, "Kodi", plugin="Extensions/Kodi")
+        self["key_blue"] = StaticText(_("Start Kodi"))
+        self["actions"] = HelpableActionMap(self, ["ColorActions"], {
+               "blue": (self.startKodi, _("Start Kodi"))
+               }, prio=-1, description=_("Kodi Actions"))
+    def startKodi(self):
+        self.close(True)
+
+def startSetup(session, **kwargs):
+    def kodiSetupCallback(result=None):
+        if result and result is True:
+              startLauncher(session)
+    session.openWithCallback(kodiSetupCallback, KodiExtSetup)
 
 def Plugins(**kwargs):
     screenwidth = getDesktop(0).size().width()
-    if screenwidth and screenwidth == 1920:
-        kodiext = 'kodiext_FHD.png'
-    else:
-        kodiext = 'kodiext_HD.png'
+    kodiext = "kodiext_FHD.png" if screenwidth and screenwidth == 1920 else "kodiext_HD.png"
+    l = [
+        PluginDescriptor("Kodi", PluginDescriptor.WHERE_AUTOSTART, "Kodi Launcher", fnc=autoStart),
+        PluginDescriptor("Kodi", PluginDescriptor.WHERE_PLUGINMENU, "Kodi Settings", icon=kodiext, fnc=startSetup)
+      ]
+    if config.kodi.addToMainMenu.value:
+        l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_MENU, fnc=startMenuLauncher))
+    if config.kodi.addToExtensionMenu.value:
+        l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_EXTENSIONSMENU, icon=kodiext, fnc=startLauncher))
+    return l
 
-    return [
-            PluginDescriptor("Kodi", PluginDescriptor.WHERE_AUTOSTART, "Kodi Launcher", fnc=autoStart),
-            PluginDescriptor("Kodi", PluginDescriptor.WHERE_EXTENSIONSMENU, "Kodi Launcher", fnc=startLauncher),
-            PluginDescriptor("Kodi", PluginDescriptor.WHERE_PLUGINMENU, "Kodi Launcher", icon=kodiext, fnc=startLauncher)]
