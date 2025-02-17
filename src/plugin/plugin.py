@@ -34,9 +34,15 @@ from enigma import eServiceReference, eTimer, ePythonMessagePump, \
 from Components.SystemInfo import SystemInfo
 from .server import KodiExtRequestHandler, UDSServer
 from Tools.BoundFunction import boundFunction
-from boxbranding import getMachineBrand
-from Tools.Directories import isPluginInstalled
 
+try:
+    from Components.SystemInfo import BoxInfo
+    MACHINEBRAND = BoxInfo.getItem("displaybrand")
+except:
+    from boxbranding import getMachineBrand
+    MACHINEBRAND = getMachineBrand()
+
+from Tools.Directories import isPluginInstalled
 from six.moves.queue import Queue
 
 
@@ -174,7 +180,7 @@ class SetResolution:
         self.atimer.callback.append(self.run)
         self.Tokodi=False
         self.Player=False
-        if getMachineBrand() in ('Vu+', 'Formuler'):
+        if MACHINEBRAND in ('Vu+', 'Formuler'):
             resolutions = ("720i", "720p")
         else:
             resolutions = ("720i", "720p", "1080i", "1080p")
@@ -826,7 +832,7 @@ class E2KodiExtServer(UDSServer):
         FBUnlock(); RCUnlock()
 
         setaudio.switch(False, True)
-        if getMachineBrand() not in ('Vu+', 'Formuler'):
+        if MACHINEBRAND not in ('Vu+', 'Formuler'):
             setresolution.switch(False, True)
         self.status = status
         self.data = data
@@ -906,7 +912,7 @@ class E2KodiExtServer(UDSServer):
     def end(self):
         self.endTimer.stop()
         SESSION.nav.stopService()
-        if getMachineBrand() not in ('Vu+', 'Formuler'):
+        if MACHINEBRAND not in ('Vu+', 'Formuler'):
             setresolution.switch(True, True)
         self.kodiPlayer = None
         self.subtitles = []
