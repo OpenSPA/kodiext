@@ -22,6 +22,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.Directories import fileExists
 from Tools import Notifications
+from Screens.Standby import QUIT_KODI, TryQuitMainloop
 
 from Components.config import config
 from Components.AVSwitch import iAVSwitch
