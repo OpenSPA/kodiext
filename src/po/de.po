@@ -103,3 +103,9 @@ msgstr "Kodi starten"
 
 msgid "Start Kodi Standalone"
 msgstr "Kodi im Standalone-Modus starten"
+
+msgid "Default Player"
+msgstr "Standardspieler"
+
+msgid "Select Default Player for Kodi"
+msgstr "Standardplayer für Kodi auswählen"

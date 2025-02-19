@@ -23,11 +23,11 @@ from Screens.Screen import Screen
 from Tools.Directories import fileExists
 from Tools import Notifications
 from Screens.Standby import QUIT_KODI, TryQuitMainloop
-from Components.config import config, ConfigSubsection, ConfigYesNo
+from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigSelection
 from Screens.Setup import Setup
 from Components.Sources.StaticText import StaticText
+import xml.etree.ElementTree as ET
 
-from Components.config import config
 from Components.AVSwitch import iAVSwitch
 
 from .e2utils import InfoBarAspectChange, WebPixmap, MyAudioSelection, \
@@ -53,6 +53,8 @@ config.kodi = ConfigSubsection()
 config.kodi.addToMainMenu = ConfigYesNo(False)
 config.kodi.addToExtensionMenu = ConfigYesNo(True)
 config.kodi.standalone = ConfigYesNo(False)
+players = [("VideoPlayer", "VideoPlayer"),("E2Player","E2Player"),("GstPlayer","GstPlayer")]
+config.kodi.player = ConfigSelection(default = "VideoPlayer", choices = players)
 
 try:
     from Plugins.Extensions.SubsSupport import SubsSupport, SubsSupportStatus
@@ -996,6 +998,48 @@ class KodiLauncher(Screen):
         self._checkConsole.ePopen("ps | grep kodi.bin | grep -v grep", psCallback)
 
     def startKodi(self):
+        if fileExists("/usr/share/kodi/system/advancedsettings.xml"):
+            try:
+                 players=ET.parse("/usr/share/kodi/system/advancedsettings.xml")
+                 if players:
+                     root = players.getroot()
+                     video = root.find('video')
+                     if video != None:
+                            default = video.find('defaultplayer')
+                            if default == None:
+                                   default = ET.SubElement(video,'defaultplayer')
+                            default.text=config.kodi.player.value
+                     else:
+                            video = ET.SubElement(root,'video')
+                            default = ET.SubElement(video,'defaultplayer')
+                            default.text=config.kodi.player.value
+                     ET.indent(root, space="  ", level=0)
+                     players.write("/usr/share/kodi/system/advancedsettings.xml")
+            except:
+                 pass
+
+        if fileExists("/usr/share/kodi/system/playercorefactory.xml"):
+            try:
+                corefactory=ET.parse("/usr/share/kodi/system/playercorefactory.xml")
+                root = corefactory.getroot()
+                if corefactory:
+                     for child in root:
+                            if child.tag == "rules" and child.get('name') == "defaultplayer" and child.get('action') == "prepend":
+                                    root.remove(child)
+                     if config.kodi.player.value != "VideoPlayer":
+                            child = ET.SubElement(root,'rules')
+                            child.set('name','defaultplayer')
+                            child.set('action','prepend')
+                            self.rule = ET.SubElement(child,'rule')
+                            self.rule.set('filetypes', 'dts|mp3|wav|wave|oga|ogg|flac|m4a|mp2|m2a|ac3|mka|aac|ape|alac|mpg|vob|m4v|mkv|avi|divx|dat|flv|mp4|mov|wmv|asf|3gp|3g2|mpeg|mpe|rm|rmvb|ogm|ogv|stream|amr|au|mid|wv|pva|wtv|ts|m2ts')
+                            self.rule.set('player', config.kodi.player.value)
+                     ET.indent(root, space="  ", level=0)
+                     corefactory.write("/usr/share/kodi/system/playercorefactory.xml")
+
+
+            except:
+                pass
+
         self._startConsole = Console()
         self._startConsole.ePopen(KODIRUN_SCRIPT, kodiStopped)
 
