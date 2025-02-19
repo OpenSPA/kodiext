@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-05 12:06+0100\n"
+"PO-Revision-Date: 2025-02-19 18:55+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0.1\n"
+
+msgid "Add Kodi to Extensions Menu"
+msgstr "Añadir Kodi al Menú de Extensiones"
+
+msgid "Add Kodi to Main Menu"
+msgstr "Añadir Kodi al Menú Principal"
+
+msgid "Add Kodi to the Extensions Menu list of options."
+msgstr "Añade Kodi a la lista de opciones del Menú Extensiones."
+
+msgid "Add Kodi to the Main Menu list of options."
+msgstr "Añade Kodi a la lista de opciones del Menú Principal."
+
+msgid "Aspect"
+msgstr "Aspecto"
+
+msgid "Average Input rate"
+msgstr "Tasa de entrada promedio"
+
+msgid "Buffer Size"
+msgstr "Tamaño del Buffer"
+
+msgid "Buffering"
+msgstr "Almacenamiento en búfer"
+
+msgid "Change aspect ratio"
+msgstr "Cambiar la relación de aspecto"
+
+msgid "Just scale"
+msgstr "Escala"
+
+msgid "Kodi Actions"
+msgstr "Acciones de Kodi"
+
+msgid "Kodi Settings"
+msgstr "Configuración de Kodi"
+
+msgid "Letterbox"
+msgstr "Letterbox"
+
+msgid "Nonlinear"
+msgstr "Nonlinear"
+
+msgid "Pan&scan"
+msgstr "Pan&scan"
+
+msgid "PillarBox"
+msgstr "PillarBox"
+
+msgid "Please select subservice..."
+msgstr "Por favor seleccione subservicio..."
+
+msgid "Policy"
+msgstr "Politica"
+
+msgid "Resuming playback"
+msgstr "Reanudar la reproducción"
+
+msgid "Select 'Yes' to start Kodi standalone. Warning!! This will stop enigma including all functions."
+msgstr "Seleccione \"Sí\" para iniciar Kodi de forma independiente. ¡Atención! Esto detendrá Enigma, incluidas todas las funciones."
+
+msgid "Show playback info"
+msgstr "Mostrar información de reproducción"
+
+msgid "Show playback menu"
+msgstr "Mostrar menú de reproducción"
+
+msgid "Show playlist"
+msgstr "Mostrar lista de reproducción"
+
+msgid "Show subservices"
+msgstr "Mostrar subservicios"
+
+msgid "Skip to next item in playlist"
+msgstr "Saltar al siguiente elemento de la lista de reproducción"
+
+msgid "Skip to previous item in playlist"
+msgstr "Saltar al elemento anterior en la lista de reproducción"
+
+msgid "Start Kodi"
+msgstr "Iniciar Kodi"
+
+msgid "Start Kodi Standalone"
+msgstr "Iniciar Kodi de forma independiente"
+
+msgid "Default Player"
+msgstr "Reproductor por defecto"
+
+msgid "Select Default Player for Kodi"
+msgstr "Selecciona el reproductor por defecto de Kodi"
