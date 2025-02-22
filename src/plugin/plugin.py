@@ -20,7 +20,7 @@ from Screens.InfoBarGenerics import InfoBarNotifications, InfoBarSeek, \
     InfoBarAudioSelection, InfoBarShowHide, InfoBarSubtitleSupport, InfoBarMoviePlayerSummary
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.Directories import fileExists
+from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_LANGUAGE
 from Tools import Notifications
 from Screens.Standby import QUIT_KODI, TryQuitMainloop
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigSelection
@@ -48,6 +48,25 @@ except:
 
 from Tools.Directories import isPluginInstalled
 from six.moves.queue import Queue
+from Components.Language import language
+import gettext
+PluginLanguageDomain = "kodiext"
+PluginLanguagePath = "Extensions/Kodi/locale"
+
+def localeInit():
+	gettext.bindtextdomain(PluginLanguageDomain, resolveFilename(SCOPE_PLUGINS, PluginLanguagePath))
+
+def _(txt):
+	if gettext.dgettext(PluginLanguageDomain, txt):
+		return gettext.dgettext(PluginLanguageDomain, txt)
+	else:
+		print("[" + PluginLanguageDomain + "] fallback to default translation for " + txt)
+		return gettext.gettext(txt)
+
+localeInit()
+language.addCallback(localeInit())
+
+
 
 config.kodi = ConfigSubsection()
 config.kodi.addToMainMenu = ConfigYesNo(False)
@@ -1106,7 +1125,7 @@ def startMenuLauncher(menuid, **kwargs):
 
 class KodiExtSetup(Setup):
     def __init__(self, session):
-        Setup.__init__(self, session, "Kodi", plugin="Extensions/Kodi")
+        Setup.__init__(self, session, "Kodi", plugin="Extensions/Kodi", PluginLanguageDomain=PluginLanguageDomain)
         self["key_blue"] = StaticText(_("Start Kodi"))
         self["actions"] = HelpableActionMap(self, ["ColorActions"], {
                "blue": (self.startKodi, _("Start Kodi"))
@@ -1124,8 +1143,8 @@ def Plugins(**kwargs):
     screenwidth = getDesktop(0).size().width()
     kodiext = "kodiext_FHD.png" if screenwidth and screenwidth == 1920 else "kodiext_HD.png"
     l = [
-        PluginDescriptor("Kodi", PluginDescriptor.WHERE_AUTOSTART, "Kodi Launcher", fnc=autoStart),
-        PluginDescriptor("Kodi", PluginDescriptor.WHERE_PLUGINMENU, "Kodi Settings", icon=kodiext, fnc=startSetup)
+        PluginDescriptor("Kodi", PluginDescriptor.WHERE_AUTOSTART, _("Kodi Launcher"), fnc=autoStart),
+        PluginDescriptor("Kodi", PluginDescriptor.WHERE_PLUGINMENU, _("Kodi Settings"), icon=kodiext, fnc=startSetup)
       ]
     if config.kodi.addToMainMenu.value:
         l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_MENU, fnc=startMenuLauncher))
