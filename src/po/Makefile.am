@@ -1,7 +1,7 @@
 PLUGIN = "kodiext"
 CATEGORY ?= "Extensions"
 
-plugindir = $(libdir)/enigma2/python/Plugins/$(CATEGORY)/kodi
+plugindir = $(libdir)/enigma2/python/Plugins/$(CATEGORY)/Kodi
 
 LANGS = es de 
 LANGMO = $(LANGS:=.mo)
@@ -34,7 +34,6 @@ install-data-local: $(LANGMO)
 	for lang in $(LANGS); do \
 		$(mkinstalldirs) $(DESTDIR)$(plugindir)/locale/$$lang/LC_MESSAGES; \
 		$(INSTALL_DATA) $$lang.mo $(DESTDIR)$(plugindir)/locale/$$lang/LC_MESSAGES/$(PLUGIN).mo; \
-		$(INSTALL_DATA) $$lang.po $(DESTDIR)$(plugindir)/locale/$$lang.po; \
 	done
 
 uninstall-local:
