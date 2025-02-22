@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-05 12:06+0100\n"
-"PO-Revision-Date: 2025-02-19 18:55+0100\n"
+"PO-Revision-Date: 2025-02-22 12:53+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -106,3 +106,9 @@ msgstr "Reproductor por defecto"
 
 msgid "Select Default Player for Kodi"
 msgstr "Selecciona el reproductor por defecto de Kodi"
+
+msgid "Ends at"
+msgstr "Finaliza a las"
+
+msgid "Kodi Launcher"
+msgstr "Lanzador de Kodi"

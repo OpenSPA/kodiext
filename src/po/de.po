@@ -109,3 +109,9 @@ msgstr "Standardspieler"
 
 msgid "Select Default Player for Kodi"
 msgstr "Standardplayer für Kodi auswählen"
+
+msgid "Ends at"
+msgstr "Endet um"
+
+msgid "Kodi Launcher"
+msgstr "Kodi-Starter"
