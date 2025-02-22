@@ -10,6 +10,7 @@ src/Makefile
 src/kodiext/Makefile
 src/plugin/Makefile
 src/plugin/image/Makefile
+src/po/Makefile
 
 ])
 AC_OUTPUT
