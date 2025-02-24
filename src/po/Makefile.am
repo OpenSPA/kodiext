@@ -8,19 +8,23 @@ LANGMO = $(LANGS:=.mo)
 LANGPO = $(LANGS:=.po)
 
 # the TRANSLATORS: allows putting translation comments before the to-be-translated line.
-$(PLUGIN)-py.pot: $(srcdir)/../plugin/*.py
-	$(XGETTEXT) --no-wrap -L Python --from-code=UTF-8 -kpgettext:1c,2 --add-comments="TRANSLATORS:" -d $(PLUGIN) -s -o $@ $^
+#$(PLUGIN)-py.pot: $(srcdir)/../plugin/*.py
+#	$(XGETTEXT) --no-wrap -L Python --from-code=UTF-8 -kpgettext:1c,2 --add-comments="TRANSLATORS:" -d $(PLUGIN) -s -o $@ $^
 
-$(PLUGIN).pot: $(PLUGIN)-py.pot
-	sed --in-place $(PLUGIN)-py.pot --expression=s/CHARSET/UTF-8/
-	$(MSGUNIQ) --no-wrap --no-location $^ -o $@
+#$(PLUGIN)-xml.pot: $(srcdir)/xml2po.py $(srcdir)/../plugin/*.xml
+#	$(PYTHON) $^ > $@
 
-%.po: $(PLUGIN).pot
-	if [ -f $@ ]; then \
-		$(MSGMERGE) --backup=none --no-wrap --no-location -s -N -U $@ $< && touch $@; \
-	else \
-		$(MSGINIT) -l $@ -o $@ -i $< --no-translator; \
-	fi
+#$(PLUGIN).pot: $(PLUGIN)-py.pot
+#	sed --in-place $(PLUGIN)-py.pot --expression=s/CHARSET/UTF-8/
+#	sed --in-place $(PLUGIN)-xml.pot --expression=s/CHARSET/UTF-8/
+#	cat $^ | $(MSGUNIQ) --no-wrap --no-location -o $@
+
+#%.po: $(PLUGIN).pot
+#	if [ -f $@ ]; then \
+#		$(MSGMERGE) --backup=none --no-wrap --no-location -s -N -U $@ $< && touch $@; \
+#	else \
+#		$(MSGINIT) -l $@ -o $@ -i $< --no-translator; \
+#	fi
 
 .po.mo:
 	$(MSGFMT) -o $@ $<
