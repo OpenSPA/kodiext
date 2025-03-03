@@ -1102,9 +1102,9 @@ def WriteDefaultPlayer():
                        child = ET.SubElement(root,'rules')
                        child.set('name','defaultplayer')
                        child.set('action','prepend')
-                       self.rule = ET.SubElement(child,'rule')
-                       self.rule.set('filetypes', 'dts|mp3|wav|wave|oga|ogg|flac|m4a|mp2|m2a|ac3|mka|aac|ape|alac|mpg|vob|m4v|mkv|avi|divx|dat|flv|mp4|mov|wmv|asf|3gp|3g2|mpeg|mpe|rm|rmvb|ogm|ogv|stream|amr|au|mid|wv|pva|wtv|ts|m2ts')
-                       self.rule.set('player', player)
+                       rule = ET.SubElement(child,'rule')
+                       rule.set('filetypes', 'dts|mp3|wav|wave|oga|ogg|flac|m4a|mp2|m2a|ac3|mka|aac|ape|alac|mpg|vob|m4v|mkv|avi|divx|dat|flv|mp4|mov|wmv|asf|3gp|3g2|mpeg|mpe|rm|rmvb|ogm|ogv|stream|amr|au|mid|wv|pva|wtv|ts|m2ts')
+                       rule.set('player', player)
                  ET.indent(root, space="  ", level=0)
                  corefactory.write("/usr/share/kodi/system/playercorefactory.xml")
         except:
@@ -1122,6 +1122,7 @@ def startLauncher(session, **kwargs):
         global SESSION
         SESSION = session
         global KODI_LAUNCHER
+        WriteDefaultPlayer()
         KODI_LAUNCHER = session.open(KodiLauncher)
 
 def startMenuLauncher(menuid, **kwargs):
