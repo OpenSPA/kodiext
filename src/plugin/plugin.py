@@ -309,12 +309,11 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
             <widget source="session.CurrentService" render="Label" position="1751,85" size="150,37" zPosition="6" font="RegularHD;22" halign="left" transparent="1">
                 <convert type="ServicePosition">EndTime,ShowNoSeconds</convert>
             </widget>
+            <widget name="logo" position="65,22" size="500,95" alphatest="on" transparent="1"/>
             <eLabel name="" position="0,0" size="1924,140" zPosition="-10"/>
             <eLabel position="0,856" zPosition="-11" size="1921,224" />
             <widget name="image" position="30,780" size="300,300" alphatest="on" transparent="1"/>
-            <widget source="session.CurrentService" render="Label" position="65,44" size="1845,38" zPosition="1"  font="RegularHD;24" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1">
-              <convert type="ServiceName">Name</convert>
-            </widget>
+            <widget name="stitle" position="65,44" size="1845,38" zPosition="2" font="RegularHD;24" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1"/>
             <widget name="genre" position="65,86" size="1845,35" zPosition="2" font="RegularHD;19" valign="center" halign="left"/>
             <eLabel name="progressbar-back" position="343,900" size="1500,4" backgroundColor="#00cccccc" />
             <widget source="session.CurrentService" render="Progress" foregroundColor="#00007eff" backgroundColor="#00ffffff" position="343,897" size="1500,10" zPosition="7" transparent="0">
@@ -374,12 +373,11 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
             <widget source="session.CurrentService" render="Label" position="1167,56" size="100,24" zPosition="6" font="Regular;22" halign="left" transparent="1">
                 <convert type="ServicePosition">EndTime,ShowNoSeconds</convert>
             </widget>
+            <widget name="logo" position="43,45" size="333,21" alphatest="on" transparent="1"/>
             <eLabel name="" position="0,0" size="1282,93" zPosition="-10"/>
             <eLabel position="0,570" zPosition="-11" size="1280,149" />
             <widget name="image" position="20,520" size="200,200" alphatest="on" transparent="1"/>
-            <widget source="session.CurrentService" render="Label" position="43,29" size="1230,25" zPosition="1"  font="Regular;24" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1">
-              <convert type="ServiceName">Name</convert>
-            </widget>
+            <widget name="stitle" position="43,29" size="1230,25" zPosition="2" font="Regular;24" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1"/>
             <widget name="genre" position="43,57" size="1230,23" zPosition="2" font="Regular;19" valign="center" halign="left"/>
             <eLabel name="progressbar-back" position="228,600" size="1000,2" backgroundColor="#00cccccc" />
             <widget source="session.CurrentService" render="Progress" foregroundColor="#00007eff" backgroundColor="#00ffffff" position="228,598" size="1000,6" zPosition="7" transparent="0">
@@ -464,6 +462,7 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         self.__position = None
         self.__firstStart = True
         self["genre"] = Label()
+        self["stitle"] = Label()
         self["endsat"]= Label(_("Ends at"))
         self.onChangedEntry = []
 
@@ -473,13 +472,18 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         except Exception as e:
             self.logger.error("failed to load meta from %s: %s", KODIEXTIN, str(e))
             meta = {}
-        self.__image = Meta(meta).getImage()
+        self.__image = Meta(meta).getImage("season.poster")
+        self.__logo = Meta(meta).getImage("clearlogo")
         self["image"] = WebPixmap(self.__image, caching=True)
+        if self.__logo != "":
+            self["logo"] = WebPixmap(self.__logo, caching=True)
+            self["logo"].hide()
 
         self.genre = str(", ".join(Meta(meta).getGenre()))
         self.plot = Meta(meta).getPlot()
 
         self["genre"].setText(self.genre)
+        self["genre"].hide()
 
         # set title, image if provided
         title = Meta(meta).getTitle()
@@ -562,6 +566,16 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
         except:
             InfoBarSeek.seekBackManual(self)
     def __evStart(self):
+        x= self["genre"].getPosition()[0]
+        if self.__logo != "":
+           x = 580 if esHD() else 387
+           self["genre"].move(x, self["genre"].getPosition()[1])
+           self["stitle"].move(x, self["stitle"].getPosition()[1])
+           self["logo"].show()
+        self["genre"].show()
+        self["stitle"].setText(self.title_ref)
+        self["stitle"].show()
+
         if self.__position and self.__firstStart:
             self.__firstStart = False
             Notifications.AddNotificationWithID(self.RESUME_POPUP_ID,
@@ -611,8 +625,11 @@ class Meta(object):
     def getTitle(self):
         title = u""
         vTag = self.meta.get('videoInfoTag')
+        islogo = self.getImage('clearlogo') != ""
         if vTag:
-            if vTag.get('showtitle'):
+            if islogo:
+               title = vTag.get("title") or vTag.get("originaltitle")
+            elif vTag.get('showtitle'):
                 title = vTag["showtitle"]
                 episode = vTag.get("episode", -1)
                 try:
@@ -652,7 +669,7 @@ class Meta(object):
             if listItem:
                 title = listItem.get("label")
 
-        return title #title.replace(r'(?s){re.escape("[")}.*?re.escape("]")}','', regex=True)
+        return title
 
     def getStartTime(self):
         startTime = 0
@@ -661,20 +678,34 @@ class Meta(object):
             startTime = playerOptions.get("startTime", 0)
         return startTime
 
-    def getImage(self):
+    def getImage(self, Item):
         image = None
         listItem = self.meta.get("listItem")
         if listItem:
-            image = listItem.get("CacheThumb", "")
+            if Item == "thumb":
+                 image = listItem.get("CacheThumb", "")
             fanart = listItem.get("Fanart", "")
             imageweb = ""
             if fanart:
-                imageweb = fanart.get("thumb", "")
+                match Item:
+                     case "thumb":
+                         imageweb = fanart.get("thumb", "")
+                         if not fileExists(image):
+                              image = imageweb
+                     case "season.poster":
+                         image = fanart.get("season.poster", "")
+                         if image == "":
+                             image = fanart.get("poster", "")
+                         if image == "":
+                             image = listItem.get("CacheThumb", "")
+                             if not fileExists(image):
+                                 image = fanart.get("thumb", "")
+                         if image == "":
+                             image = fanart.get("fanart", "")
+                     case __:
+                         image = fanart.get(Item, "")
 
-            if imageweb.startswith("http"):
-                if not fileExists(image):
-                    image = imageweb
-            else:
+            if image == "":
                 filename = self.getFilename()
                 if fileExists(str(filename) + ".png"):
                     image = str(filename) + ".png"
@@ -732,10 +763,10 @@ class VideoInfoView(Screen):
         skin = """
         <screen position="center,center" size="1150,600" title="View Video Info" >
            <widget name="image" position="15,150" size="300,400" alphatest="on" transparent="1"/>
-           <widget source="session.CurrentService" render="Label" position="20,20" size="1110,42" zPosition="1"  font="RegularHD;26" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1">
-               <convert type="ServiceName">Name</convert>
-           </widget>
-           <widget name="genre" position="20,70" size="1110,35" zPosition="2" font="RegularHD;19" valign="center" halign="left"/>
+           <widget name="logo" position="20,22" size="333,65" zPosition="2" alphatest="on" transparent="1"/>
+           <widget name="stitle" position="20,20" size="1110,42" zPosition="1"  font="RegularHD;26" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1"/>
+           <widget name="thumb" position="960,5" size="175,100" alphatest="on" transparent="0"/>
+           <widget name="genre" position="20,70" size="1110,35" zPosition="1" font="RegularHD;19" valign="center" halign="left" transparent="1"/>
            <eLabel name="linea" position="20,110" size="1110,2" foregroundColor="#40444444" transparent="0" zPosition="20" backgroundColor="#30555555"/>
            <widget source="description" position="330,150" size="800,400" font="RegularHD; 20" render="RunningTextSpa" options="movetype=swimming,startpoint=0,direction=top,steptime=100,repeat=0,always=0,oneshot=0,startdelay=15000,pause=500,backtime=5" noWrap="0"/>
         </screen>"""
@@ -743,10 +774,10 @@ class VideoInfoView(Screen):
         skin="""
         <screen position="center,center" size="766,400" title="View Video Info" >
            <widget name="image" position="10,100" size="200,266" alphatest="on" transparent="1"/>
-           <widget source="session.CurrentService" render="Label" position="13,13" size="740,28" zPosition="1"  font="Regular;26" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1">
-               <convert type="ServiceName">Name</convert>
-           </widget>
-           <widget name="genre" position="13,46" size="740,23" zPosition="2" font="Regular;19" valign="center" halign="left"/>
+           <widget name="logo" position="13,15" size="222,43" zPosition="2" alphatest="on" transparent="1"/>
+           <widget name="stitle" position="13,13" size="740,28" zPosition="1"  font="Regular;26" valign="center" halign="left" foregroundColor="#00ffa533" transparent="1"/>
+           <widget name="thumb" position="640,3" size="117,67" alphatest="on" transparent="0"/>
+           <widget name="genre" position="13,46" size="740,23" zPosition="1" font="Regular;19" valign="center" halign="left" transparent="1"/>
            <eLabel name="linea" position="13,73" size="740,1" foregroundColor="#40444444" transparent="0" zPosition="20" backgroundColor="#30555555"/>
            <widget source="description" position="220,100" size="533,266" font="Regular; 20" render="RunningTextSpa" options="movetype=swimming,startpoint=0,direction=top,steptime=100,repeat=0,always=0,oneshot=0,startdelay=15000,pause=500,backtime=5" noWrap="0"/>
         </screen>"""
@@ -757,26 +788,58 @@ class VideoInfoView(Screen):
 
         self["genre"] = Label()
         self["description"]=Label()
+        self["stitle"]=Label()
         # load meta info from json file provided by Kodi Enigma2Player
         try:
             meta = json.load(open(KODIEXTIN, "r"))
         except Exception as e:
             self.logger.error("failed to load meta from %s: %s", KODIEXTIN, str(e))
             meta = {}
-        self.__image = Meta(meta).getImage()
+        self.__image = Meta(meta).getImage("season.poster")
         self["image"] = WebPixmap(self.__image, caching=True)
+        self["thumb"] = WebPixmap(Meta(meta).getImage("thumb"), caching=True)
+        self.__logo = Meta(meta).getImage("clearlogo")
+        if self.__logo != "":
+            self["logo"] = WebPixmap(self.__logo, caching=True)
+            self["logo"].hide()
 
         self.genre = str(", ".join(Meta(meta).getGenre()))
         self.plot = str(Meta(meta).getPlot())
 
         self["genre"].setText(self.genre)
         self["description"].setText(self.plot)
+        self["genre"].hide()
+        self["stitle"].hide()
+
+        title = Meta(meta).getTitle()
+        if title:
+            try:
+                title = re.sub(r"\[.*?\]","",str(title), flags=re.DOTALL)
+            except:
+                pass
+
+
+        self.title_ref = title
 
         self["actions"] = ActionMap(["OkCancelActions"],
         {
                 "cancel": self.close,
                 "ok": self.close
         }, -1)
+
+        self.onShow.append(self.__onShow)
+
+    def __onShow(self):
+        x= self["genre"].getPosition()[0]
+        if self.__logo != "":
+           x = 365 if esHD() else 243
+           width = 580 if esHD() else 387
+           self["genre"].move(x, self["genre"].getPosition()[1])
+           self["stitle"].move(x, self["stitle"].getPosition()[1])
+           self["logo"].show()
+        self["stitle"].setText(self.title_ref)
+        self["genre"].show()
+        self["stitle"].show()
 
 
 class E2KodiExtRequestHandler(KodiExtRequestHandler):
