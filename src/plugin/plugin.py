@@ -492,8 +492,8 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
                 title = re.sub(r"\[.*?\]","",str(title), flags=re.DOTALL)
             except:
                 pass
- 
-        
+
+
         self.title_ref = title
 
         # set start position if provided
@@ -1093,7 +1093,7 @@ class KodiLauncher(Screen):
         RCUnlock()
         setaudio.switch()
         self.endTimer1.start(1000, True)
-        
+
     def end1(self):
         self.endTimer1.stop()
         setresolution.switch()
@@ -1189,8 +1189,8 @@ def startLauncher(session, **kwargs):
         KODI_LAUNCHER = session.open(KodiLauncher)
 
 def startMenuLauncher(menuid, **kwargs):
-    if menuid == "mainmenu":
-        return [("Kodi", startLauncher, "kodi", 1)]
+    if menuid == "setup":
+        return [(_("Kodi Settings"), startSetup, "kodi", 1)]
     return []
 
 class KodiExtSetup(Setup):
@@ -1216,9 +1216,8 @@ def Plugins(**kwargs):
         PluginDescriptor("Kodi", PluginDescriptor.WHERE_AUTOSTART, _("Kodi Launcher"), fnc=autoStart),
         PluginDescriptor("Kodi", PluginDescriptor.WHERE_PLUGINMENU, _("Kodi Settings"), icon=kodiext, fnc=startSetup)
       ]
-    if config.kodi.addToMainMenu.value:
-        l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_MENU, fnc=startMenuLauncher))
     if config.kodi.addToExtensionMenu.value:
         l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_EXTENSIONSMENU, icon=kodiext, fnc=startLauncher))
+    l.append(PluginDescriptor(name="Kodi", where=PluginDescriptor.WHERE_MENU, fnc=startMenuLauncher))
     return l
 
