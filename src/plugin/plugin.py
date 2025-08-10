@@ -608,8 +608,8 @@ class KodiVideoPlayer(InfoBarBase, InfoBarShowHide, SubsSupportStatus, SubsSuppo
 
         self.session.nav.playService(sref)
 
-    def audioSelection(self):
-        self.session.openWithCallback(self.audioSelected, MyAudioSelection, infobar=self)
+#    def audioSelection(self):
+#        self.session.openWithCallback(self.audioSelected, MyAudioSelection, infobar=self)
 
 
     def showAspectChanged(self):
