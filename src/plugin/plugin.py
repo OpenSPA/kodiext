@@ -689,22 +689,21 @@ class Meta(object):
             if fanart:
                 match Item:
                      case "thumb":
-                         imageweb = fanart.get("thumb", "")
+                         imageweb = "" if isinstance(fanart, str) else fanart.get("thumb", "")
                          if not fileExists(image):
                               image = imageweb
                      case "season.poster":
-                         image = fanart.get("season.poster", "")
+                         image = "" if isinstance(fanart, str) else fanart.get("season.poster", "")
                          if image == "":
-                             image = fanart.get("poster", "")
+                             image = "" if isinstance(fanart, str) else fanart.get("poster", "")
                          if image == "":
                              image = listItem.get("CacheThumb", "")
                              if not fileExists(image):
-                                 image = fanart.get("thumb", "")
+                                 image = "" if isinstance(fanart, str) else fanart.get("thumb", "")
                          if image == "":
-                             image = fanart.get("fanart", "")
+                             image = "" if isinstance(fanart, str) else fanart.get("fanart", "")
                      case __:
-                         image = fanart.get(Item, "")
-
+                         image = "" if isinstance(fanart, str) else fanart.get(Item, "")
             if image == "":
                 filename = self.getFilename()
                 if fileExists(str(filename) + ".png"):
