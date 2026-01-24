@@ -145,7 +145,7 @@ class WebPixmap(GUIComponent):
         if os.path.isfile(url):
             self.loadFromFile(url)
         elif (url.startswith("http") if isinstance(url, str) else url.startswith(b"http")):
-            tmpPath = join(self.cachedir, b64encode(url if isinstance(url, (bytes, bytearray)) else url.encode('utf-8')).decode())
+            tmpPath = os.path.join(self.cachedir, base64.b64encode(url if isinstance(url, (bytes, bytearray)) else url.encode('utf-8')).decode())
             if self.caching:
                 if os.path.isfile(tmpPath):
                     self.loadFromFile(tmpPath)
